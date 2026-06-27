@@ -7,7 +7,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.ichibase"
+group = "com.github.ichi-base"
 version = "0.1.0"
 
 repositories {

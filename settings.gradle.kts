@@ -1,1 +1,1 @@
-rootProject.name = "ichibase"
+rootProject.name = "ichibase-kotlin"
