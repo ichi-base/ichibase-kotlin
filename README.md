@@ -135,13 +135,44 @@ chat.track(mapOf("typing" to true))
 Call `ichi.realtime.pause()` / `.resume()` from your lifecycle (e.g. `onStop`/
 `onStart`) to drop the socket while backgrounded.
 
-## Java interop
+## Java
 
-The API is Kotlin-first (coroutines). From Java, call the `suspend` functions
-via a coroutines-Java bridge (`kotlinx-coroutines-jdk8`), e.g.
-`FutureKt.future(...)`, or from your own background thread with
-`BuildersKt.runBlocking(...)`. The non-suspend pieces (`Ichibase` construction,
-`realtime.subscribe`, listeners, `JsonElement` access) work directly from Java.
+Java apps use **`IchibaseJava`** — the same client wrapped in plain callbacks
+(SAM `fun interface`s), so there are no coroutines at the call site. Callbacks
+fire on a background thread; hop to the UI thread (e.g. `runOnUiThread`) before
+touching views.
+
+```java
+IchibaseJava ichi = IchibaseJava.create(
+    "https://<project>.ichibase.net",
+    "ich_pub_…" // publishable (anon) key
+);
+
+// Database — build the chain, then execute(query, callback)
+ichi.execute(
+    ichi.from("posts").select("*").eq("published", true).order("created_at", false).limit(20),
+    res -> {
+        if (res.getOk()) { /* res.getData() … */ }
+        else { /* res.getError() */ }
+    }
+);
+
+// Auth
+ichi.auth().login("a@b.com", "secret", res -> {
+    if (res.getOk() && res.getData().getSession() != null) { /* signed in */ }
+});
+
+// Mongo / Functions
+ichi.mongo().collection("users").find(java.util.Map.of("active", true), res -> { });
+ichi.functions().invoke("hello", java.util.Map.of("name", "world"), res -> { });
+
+// Realtime
+JavaSubscription sub = ichi.realtime().subscribePostgres("posts", msg -> { });
+// sub.unsubscribe();
+```
+
+`Cancelable` is returned from every async call (`.cancel()` to abort). Prefer the
+coroutine API from Kotlin? `ichi.kotlin()` returns the underlying `Ichibase`.
 
 ## Files / Storage
 
