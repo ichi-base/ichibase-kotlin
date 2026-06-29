@@ -193,6 +193,12 @@ public class JavaAuth internal constructor(private val parent: IchibaseJava, pri
     public fun verifyOtp(email: String, code: String, cb: IchibaseCallback<Session>): Cancelable =
         parent.run(cb) { auth.verifyOtp(email, code) }
 
+    public fun signInWithPhone(phone: String, cb: IchibaseCallback<JsonElement>): Cancelable =
+        parent.run(cb) { auth.signInWithPhone(phone) }
+
+    public fun verifyPhoneOtp(phone: String, code: String, cb: IchibaseCallback<Session>): Cancelable =
+        parent.run(cb) { auth.verifyPhoneOtp(phone, code) }
+
     public fun verifyMagicLink(token: String, cb: IchibaseCallback<Session>): Cancelable =
         parent.run(cb) { auth.verifyMagicLink(token) }
 

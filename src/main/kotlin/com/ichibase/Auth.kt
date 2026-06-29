@@ -132,6 +132,15 @@ public class Auth internal constructor(
     public suspend fun verifyOtp(email: String, code: String): IchibaseResponse<Session> =
         finishLogin(call("/login/passwordless/verify", body = jsonObjectOf("email" to email, "code" to code)))
 
+    /** Send a one-time login code by SMS (paid plans). [phone] must be E.164,
+     *  e.g. "+14155551234". A new number creates the account on first verify;
+     *  finish with [verifyPhoneOtp]. */
+    public suspend fun signInWithPhone(phone: String): IchibaseResponse<JsonElement> =
+        call("/login/phone/request", body = jsonObjectOf("phone" to phone))
+
+    public suspend fun verifyPhoneOtp(phone: String, code: String): IchibaseResponse<Session> =
+        finishLogin(call("/login/phone/verify", body = jsonObjectOf("phone" to phone, "code" to code)))
+
     public suspend fun verifyMagicLink(token: String): IchibaseResponse<Session> =
         finishLogin(call("/login/magic", body = jsonObjectOf("token" to token)))
 
